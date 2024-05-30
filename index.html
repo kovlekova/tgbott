@@ -13,12 +13,23 @@
       body {
         background: black;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
       }
       /*толщина холста — 1 пиксель, белый цвет*/
       canvas {
         border: 1px solid white;
+      }
+      .buttons-container {
+        position: fixed;
+        bottom: 0;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+      }
+      button {
+      width: 80px; /* задаем ширину кнопки */
+      height: 70px; /* задаем высоту кнопки */
       }
     </style>
 </head>
@@ -26,6 +37,12 @@
 <body>
   <!-- рисуем поле для игры -->
   <canvas width="320" height="640" id="game"></canvas>
+  <div class="buttons-container">
+  <button id ="leftButton">Left</button>
+  <button id="turnButton">Turn</button>
+  <button id="downButton">Down</button>
+  <button id="rightButton">Right</button>
+  </div>
   <script>
     // License CC0 1.0 Universal 
     // https://gist.github.com/straker/3c98304f8a6a9174efd8292800891ea1
@@ -34,6 +51,22 @@
     // получаем доступ к холсту
     const canvas = document.getElementById('game');
     const context = canvas.getContext('2d');
+    const leftbutton = document.getElementById("leftButton");
+    const rightbutton = document.getElementById("rightButton");
+    const turnbutton = document.getElementById("turnButton");
+    const downbutton = document.getElementById("downButton");
+
+    for (let row = -2; row < 20; row++) {
+      for (let col = 0; col < 10; col++) {
+        var x = col * 32;
+        var y = row * 32;
+        context.fillStyle = 'red' // цвет заливки
+        context.fillRect(x, y, 32, 32);
+        context.strokeStyle = 'blue'; // цвет границ клетки
+        context.strokeRect(x, y, 32, 32);
+      }
+    }
+
     // размер квадратика
     const grid = 32;
     // массив с последовательностями фигур, на старте — пустой
@@ -307,13 +340,13 @@
     }
 
     // следим за нажатиями на клавиши
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('click', (event) => {
       // если игра закончилась — сразу выходим
       if (gameOver) return;
 
       // стрелки влево и вправо
-      if (e.which === 37 || e.which === 39) {
-        const col = e.which === 37
+      if (event.target === leftbutton  || event.target === rightButton) {
+        const col = event.target === leftbutton
           // если влево, то уменьшаем индекс в столбце, если вправо — увеличиваем
           ? tetromino.col - 1
           : tetromino.col + 1;
@@ -325,7 +358,7 @@
       }
 
       // стрелка вверх — поворот
-      if (e.which === 38) {
+      if (event.target === turnbutton) {
         // поворачиваем фигуру на 90 градусов
         const matrix = rotate(tetromino.matrix);
         // если так ходить можно — запоминаем
@@ -335,7 +368,7 @@
       }
 
       // стрелка вниз — ускорить падение
-      if(e.which === 40) {
+      if(event.target === downbutton) {
         // смещаем фигуру на строку вниз
         const row = tetromino.row + 1;
         // если опускаться больше некуда — запоминаем новое положение
